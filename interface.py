@@ -51,29 +51,29 @@ def inicializacao_jogo(jogador, ind, nick, prt):
     """
     msg_privada(jogador[ind], "Insira seu nick")
     nick[ind] = dados_recebidos(jogador[ind])
-    msg_privada(jogador[ind], "Para acessar as regras, digite '1', caso desege continuar digite '2'")
-    if int(dados_recebidos(jogador[ind])) == 1:
+    msg_privada(jogador[ind], "Para acessar as regras, digite '1', caso desege continuar digite qualquer outra tecla")
+    if int(dados_recebidos(jogador[ind])) == INSTRUCOES:#Criar cte
         instrucoes_jogo(jogador, ind)
-    if len(prt) == 0:
+    if len(prt) == PRIMEIRO_PRONTO:#criar cte
         prt.append(None)
         msg_privada(jogador[ind], "Aguardando seu oponente para o início da BATALHA!!!")
     else:
         prt.append(None)
 
 #Threads com a função de inicialização para que cada jogador navegue de forma separada
-inic1 = threading.Thread(target=inicializacao_jogo, args=[clientes, 0, nick_jogadores, pronto])
-inic2 = threading.Thread(target=inicializacao_jogo, args=[clientes, 1, nick_jogadores, pronto])
+inic1 = threading.Thread(target=inicializacao_jogo, args=[clientes, JOGADOR1, nick_jogadores, pronto])
+inic2 = threading.Thread(target=inicializacao_jogo, args=[clientes, JOGADOR2, nick_jogadores, pronto])
 inic1.start()
 inic2.start()
 
 #Laço de checagem de saída dos jogadores de suas threads
 while True:
-    if len(pronto) == 2:
+    if len(pronto) == JOGADORES_PRONTOS:
         msg_privada(clientes[dado], f"Olá {nick_jogadores[dado]}\nPor favor, insira a quantidade de linhas e colunas do nosso campo de batalha\n"\
                                     "A entrada deve ser da forma 'linha coluna'.")
         while True:
             linhas, colunas = map(int, dados_recebidos(clientes[dado]).split())
-            if linhas < 10 or colunas < 10:
+            if linhas < LINHAS_MIN or colunas < COLUNAS_MIN:
                 msg_privada(clientes[dado], "O tabuleiro deve possuir dimensão mínima '10x10'. Por favor, forneça novos valores:\n")
             else:
                 break
@@ -81,13 +81,13 @@ while True:
 
 #Criação dos tabuleiros dos jogadores
 #Cada jogador possui 2 tabuleiros, 1 para o posicionamento das embarcações e 1 para a visualização de suas jogadas
-for i in range(2):
+for i in range(2):#criar cte
     tabu_visual.append(campo_de_batalha(linhas, colunas))
     tabu_posi.append(campo_de_batalha(linhas, colunas))
 
 msg_publica("Uma prévia do seu campo de batalha:")
-msg_privada(clientes[0], f"{nick_jogadores[0]}, este será o seu campo de batalha\n{formar_campo(tabu_visual[0])}")
-msg_privada(clientes[1], f"{nick_jogadores[1]}, este será o seu campo de batalha\n{formar_campo(tabu_visual[1])}")
+msg_privada(clientes[JOGADOR1], f"{nick_jogadores[JOGADOR1]}, este será o seu campo de batalha\n{formar_campo(tabu_visual[0])}")
+msg_privada(clientes[JOGADOR2], f"{nick_jogadores[JOGADOR2]}, este será o seu campo de batalha\n{formar_campo(tabu_visual[1])}")
 
 
 #Aqui é a área para determinação da quantidade das embarcações conforme o tamanho do tabuleiro que foi fornecido
@@ -164,11 +164,11 @@ combate_jogador2.start()
 pontos_totais = pontos(embarcacoes)
 #Laço principal
 while True:
-    if len(pronto) == 2:
+    if len(pronto) == JOGADORES_PRONTOS:
         msg_publica("Todas as embarcações foram posicionadas")
         pronto.clear()
         while True:
-            for i in range(2):
+            for i in range(JOGADORES_PRONTOS):
                 while True:
                     msg_privada(clientes[i], "Forneça a coordenada do seu tiro no formato 'linha coluna'")
                     x, y = map(int, dados_recebidos(clientes[i]).split())
@@ -191,6 +191,6 @@ while True:
                     troca_car(x, y, tabu_visual[i], "X")
                 msg_publica(f"{nick_jogadores[i]} pontos = {pontos_feitos(tabu_visual[i])}")
                 msg_privada(clientes[i], formar_campo(tabu_visual[i]))
-            if len(pronto) == 1:
+            if len(pronto) == VENCENDOR:
                 break
         break

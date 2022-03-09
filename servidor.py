@@ -12,7 +12,7 @@ def fun_principal():
     """
     servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        servidor.bind((HOST, PORTA))
+        servidor.bind(("", PORTA))
         servidor.listen()
     except:
         return print("Servidor não iniciado")
