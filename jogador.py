@@ -33,7 +33,10 @@ def receber_mensagem(cliente):
     while True:
         try:
             mensagem = cliente.recv(2048).decode("utf-8")
-            print(mensagem+"\n")
+            if mensagem == ENCERRAMENTO:
+                cliente.close()
+            else:
+                print(mensagem+"\n")
         except:
             print("\nNão foi possivel manter conexão")
             print("Pressione <Enter> para continuar...")

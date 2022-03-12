@@ -66,10 +66,10 @@ inic2 = threading.Thread(target=inicializacao_jogo, args=[clientes, JOGADOR2, ni
 inic1.start()
 inic2.start()
 
-#Laço de checagem de saída dos jogadores de suas threads
+#Checagem de saída das Threads
 while True:
     if len(pronto) == JOGADORES_PRONTOS:
-        msg_privada(clientes[dado], f"Olá {nick_jogadores[dado]}\nPor favor, insira a quantidade de linhas e colunas do nosso campo de batalha\n"\
+        msg_privada(clientes[dado], f"Olá {nick_jogadores[dado]}\nPor favor, insira a quantidade de linhas e colunas do nosso campo de batalha\n"
                                     "A entrada deve ser da forma 'linha coluna'.")
         while True:
             linhas, colunas = map(int, dados_recebidos(clientes[dado]).split())
@@ -81,13 +81,13 @@ while True:
 
 #Criação dos tabuleiros dos jogadores
 #Cada jogador possui 2 tabuleiros, 1 para o posicionamento das embarcações e 1 para a visualização de suas jogadas
-for i in range(2):#criar cte
+for i in range(JOGADORES_PRONTOS):
     tabu_visual.append(campo_de_batalha(linhas, colunas))
     tabu_posi.append(campo_de_batalha(linhas, colunas))
 
 msg_publica("Uma prévia do seu campo de batalha:")
-msg_privada(clientes[JOGADOR1], f"{nick_jogadores[JOGADOR1]}, este será o seu campo de batalha\n{formar_campo(tabu_visual[0])}")
-msg_privada(clientes[JOGADOR2], f"{nick_jogadores[JOGADOR2]}, este será o seu campo de batalha\n{formar_campo(tabu_visual[1])}")
+msg_privada(clientes[JOGADOR1], f"{nick_jogadores[JOGADOR1]}, este será o seu campo de batalha\n{formar_campo(tabu_visual[JOGADOR1])}")
+msg_privada(clientes[JOGADOR2], f"{nick_jogadores[JOGADOR2]}, este será o seu campo de batalha\n{formar_campo(tabu_visual[JOGADOR2])}")
 
 
 #Aqui é a área para determinação da quantidade das embarcações conforme o tamanho do tabuleiro que foi fornecido
@@ -105,6 +105,7 @@ msg_publica("Quantidades de cada tipo de embarcações:\n"
 #Essa é apenas uma variável de auxílio nas utilizações das threads
 pronto.clear()
 
+
 def inicio_combate(emb, jogador, ind, tab, nick):
     """
     Função para o posicionamento de embarcações dos jogadores
@@ -115,16 +116,17 @@ def inicio_combate(emb, jogador, ind, tab, nick):
     :param nick: Lista com os nicks escolhidos pelos jogadores
     """
     msg_privada(jogador[ind], f"{nick[ind]}, você deseja posicionar as embarcações manualmente ou de forma aleatória?\n1- Manual\n2- Aleatória")
-    posi = int(dados_recebidos(jogador[ind]))
+    posicionamento = int(dados_recebidos(jogador[ind]))
     for i in range(len(emb)):
         for j in range(len(emb[i])):
-            if posi == 1:
+            if posicionamento == MANUAL:
+                msg_privada(jogador[ind], f"{nick[ind]}, cada embarcação posicionada aparecerão '@' ao seu entorno para simbolizar posição bloqueadas para novos posicionamentos")
                 while True:
                     msg_privada(jogador[ind], f"{nick[ind]}, posicione a embarcação {emb[i][j]} seguindo as instruções do início do jogo")
                     x, y = map(int, dados_recebidos(jogador[ind]).split())
                     msg_privada(jogador[ind], "Selecione a horientação da embarcação\n1- Vertical\n2- Horizontal")
                     orientacao = int(dados_recebidos(jogador[ind]))
-                    if orientacao == 1:
+                    if orientacao == ORIENTACAO1:
                         hor = 0
                         ver = 1
                     else:
@@ -137,12 +139,12 @@ def inicio_combate(emb, jogador, ind, tab, nick):
                     else:
                         msg_privada(jogador[ind], "Coordenada não disponível, tente novamente!")
 
-            elif posi == 2:
+            elif posicionamento == ALEATORIO:
                 while True:
                     aleatorio_lin = randint(0, linhas)
                     aleatorio_col = randint(0, colunas)
                     orientacao_aleatoria = randint(1, 2)
-                    if orientacao_aleatoria == 1:
+                    if orientacao_aleatoria == ORIENTACAO1:
                         hor = 0
                         ver = 1
                     else:
@@ -155,9 +157,10 @@ def inicio_combate(emb, jogador, ind, tab, nick):
 
     pronto.append(None)
 
+
 #Threads para posicionamente das embarcações
-combate_jogador1 = threading.Thread(target=inicio_combate, args=[embarcacoes, clientes, 0, tabu_posi[0], nick_jogadores])
-combate_jogador2 = threading.Thread(target=inicio_combate, args=[embarcacoes, clientes, 1, tabu_posi[1], nick_jogadores])
+combate_jogador1 = threading.Thread(target=inicio_combate, args=[embarcacoes, clientes, JOGADOR1, tabu_posi[JOGADOR1], nick_jogadores])
+combate_jogador2 = threading.Thread(target=inicio_combate, args=[embarcacoes, clientes, JOGADOR2, tabu_posi[JOGADOR2], nick_jogadores])
 combate_jogador1.start()
 combate_jogador2.start()
 
@@ -165,7 +168,10 @@ pontos_totais = pontos(embarcacoes)
 #Laço principal
 while True:
     if len(pronto) == JOGADORES_PRONTOS:
-        msg_publica("Todas as embarcações foram posicionadas")
+        msg_publica("Todas as embarcações foram posicionadas\n"
+                    "Legenda:\n"
+                    "Tiro na água = X\n"
+                    "Embarcação atingida = Tamanho da embarcação\n")
         pronto.clear()
         while True:
             for i in range(JOGADORES_PRONTOS):
@@ -182,15 +188,16 @@ while True:
                     troca_car(x, y, tabu_visual[i], tabu_posi[i - 1][x][y])
                     msg_privada(clientes[i-1], f"Tiro de {nick_jogadores[i]} em {x} {y} Acertou uma embarcação\n")
                     if pontos_totais == pontos_feitos(tabu_visual[i]):
-                        msg_publica(f"PARABÉNS, {nick_jogadores[i]}!")
+                        msg_publica(f"=============\n\nO VENCEDOR É: {nick_jogadores[i]}!\n\n=============")
                         sleep(5)
                         pronto.append(None)
                         break
                 else:
                     msg_publica(f"Tiro na água de {nick_jogadores[i]}!")
                     troca_car(x, y, tabu_visual[i], "X")
-                msg_publica(f"{nick_jogadores[i]} pontos = {pontos_feitos(tabu_visual[i])}")
+                msg_publica(f"{nick_jogadores[i]} pontos = {pontos_feitos(tabu_visual[i])}\n")
                 msg_privada(clientes[i], formar_campo(tabu_visual[i]))
             if len(pronto) == VENCENDOR:
+                msg_publica(ENCERRAMENTO)
                 break
         break
