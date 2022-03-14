@@ -1,3 +1,4 @@
 # Batalha-Naval
 Projeto Programação e Algoritmo
-O códdigo ainda será aperfeiçoado, tanto na adição de mais constantes quanto na interface com o usuário.
+
+Este é um jogo de batalha naval feito para jogar em um rede de computadores local.
