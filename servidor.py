@@ -29,16 +29,16 @@ def concexao(jogadores, server):
     while True:
         cliente, ende = server.accept()
         jogadores.append(cliente)
-        if len(jogadores) == 2:
+        if len(jogadores) == JOGADORES_PRONTOS:
             return True
         elif len(jogadores) == 1:
-            msg_privada(jogadores[0], "Aguarde enquanto seu oponente conecta!")
+            msg_privada(jogadores[JOGADOR1], "Aguarde enquanto seu oponente conecta!")
 
 
 def msg_publica(msg):
     """
+    :param msg: Mensagem à ser enviada
     A função é responsável por enviar uma mensagem para todos os jogadores
-
     """
     for jogador in clientes:
         jogador.sendall(msg.encode("utf-8"))
@@ -46,7 +46,9 @@ def msg_publica(msg):
 
 def msg_privada(cliente, msg):
     """
-    A função irá enciar uma mensagem para um determinado jogador,
+    :param msg: Mensagem à ser enviada
+    :param cliente: cliente à enviar os dados
+    A função irá enviar uma mensagem para um determinado jogador,
     tal jogador, assim como a mensagem, serão recebidas como parâmetros da função
 
     """
@@ -56,7 +58,8 @@ def msg_privada(cliente, msg):
 def dados_recebidos(cliente):
     """
     Função responsável por receber dados dos jogadores
-
+    :param cliente: cliente à enviar os dados
+    :return: mensagem decodificada recebida do cliente
     """
     msg = cliente.recv(2048)
     return msg.decode("utf-8")

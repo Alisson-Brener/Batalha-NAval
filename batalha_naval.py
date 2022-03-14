@@ -28,22 +28,22 @@ def formar_campo(tab):
         if i == 0:
             for k in range(col):
                 if k == 0:
-                    campo += "/  " + "0  "
+                    campo += "/  " + "0  "#Formação da linha superior com os índices de cada coluna
                 else:
                     campo += str(k)
                     if k + 1 < col:
-                        if k > 9:
-                            campo += " "
+                        if k > 9: #teste para números que contenham mais de um dígito
+                            campo += " "#espaçamento para números com mais de um dígito
                         else:
-                            campo += "  "
+                            campo += "  "#espaçamento para números com apenas um dígito
                     else:
                         campo += "\n\n"
         for j in range(col):
-            if j == 0:
-                if i < 10:
-                    campo += str(i) + "  "
+            if j == 0: #Teste para a coluna esquerda com os índices de cada linha
+                if i < 10:#teste para números que contenham menos de dois dígitos
+                    campo += str(i) + "  "#espaçamento para números com apenas um dígito
                 else:
-                    campo += str(i) + " "
+                    campo += str(i) + " "#espaçamento para números com mais de um dígito
             campo += tab[i][j]
             if j+1 < col:
                 campo += "  "
@@ -134,7 +134,7 @@ def pos_emb(x, y, tab, num_emb, hor, ver):
     :param hor: Representa a orientação de posicionamento da embarcação
     :param ver: Representa a orientação de posicionamento da embarcação
     """
-    for k in range(int(num_emb[0])):
+    for k in range(int(num_emb[0])): #Laço de posicionamento das embarcações e dos símbolos aos seus arredores
         tab[x + (k * ver)][y + (k * hor)] = num_emb[0]
         try:
             if tab[x + (k * ver) - 1][y + (k * hor)] == "*" and x+(k*ver)-1 >= 0:
